@@ -14,10 +14,17 @@ router.get('/', (req, res) => {
 })
 
 router.get('/:id', (req, res) => {
-    actions.get(req.params.id).then(action =>res.json(action));
-// })
-// .catch (err => {
-//     res.status(500).json({ err: error})
+    actions
+    .get(req.params.id)
+    .then(action => {
+        res.json(action)
+    .catch(err => {
+        res.status(500).json({ error: 'could not find that id'})
+    })
+    })
+    .catch(err => {
+        res.status(500).json({ error: 'ERROR' })
+})
 })
 
 router.delete('/:id', (req, res) => {
@@ -27,7 +34,7 @@ router.delete('/:id', (req, res) => {
     .catch(error => res.status(500).json(error));
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', (req, res) => {
     const actionData = req.body;
     console.log('action Data',actionData)
     actions

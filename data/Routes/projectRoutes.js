@@ -1,11 +1,9 @@
 const express = require('express');
-
 const projects = require('../helpers/projectModel');
-
 const router = express.Router();
 
 router.get('/', (req, res) => {
-    db
+    projects
     .get()
     .then(projects  => {
         res.json(projects);
@@ -16,17 +14,21 @@ router.get('/', (req, res) => {
 })
 
 router.get('/:id', (req, res) => {
-    projects.get(req.params.id).then(projects => res.json(projects))
+    projects
+    .get(req.params.id)
+    .then((project) => {
+        res.json(project)
+    })
 })
 
-router.get('/:id/actions', (req, res) => {
+router.get('/:id/projects', (req, res) => {
     projects.getProjectActions(req.params.id).then(actions => res.json(actions));
 });
 
 router.post('/', (req, res, next) => {
     const projectData = req.body;
     console.log('project Data', projectData)
-    db
+    projects
     .insert(projectData)
     .then(response => {
         res.status(201).json(response);
