@@ -1,6 +1,6 @@
 const express = require('express');
 
-const db = require('../helpers/projectModel');
+const projects = require('../helpers/projectModel');
 
 const router = express.Router();
 
@@ -14,6 +14,15 @@ router.get('/', (req, res) => {
         res.status(500).json({ error: err })
     })
 })
+
+router.get('/:id', (req, res) => {
+    projects.get(req.params.id).then(projects => res.json(projects))
+})
+
+router.get('/:id/actions', (req, res) => {
+    projects.getProjectActions(req.params.id).then(actions => res.json(actions));
+});
+
 router.post('/', (req, res, next) => {
     const projectData = req.body;
     console.log('project Data', projectData)
@@ -31,25 +40,24 @@ router.post('/', (req, res, next) => {
         })
 })
 
-router.put('/',)
+router.put('/:id', (req, res) => {
+    const { id } = req.params;
+    projects
+    .update(id, req.body)
+    .then(projects => {
+        if (projects != null) {
+            res.status(200).json(projects);
+        } else {
+            res.status(404).json({ message: "There is no project with that Id"})
+        }
+    })
+    .catch(error => res.json(error))
+})
 
-// router.get('/actions:id', (req, res) => {
-//     let id;
-//     db
-//     .get(id)
-//     .then(foundId => {
-//         id = { ...foundId[0]}
-//     db
-//     .getProjectActions(projectId)
-//     .then(actions =>{
-//         res.json(actions);
-//     })
-//     })
-//     .catch(err => {
-//         res.status(500).json({ error: err })
-//     })
-// })
-
-
-
+router.delete('/:id', (req,res) => {
+    projects
+    .remove(req.params.id)
+    .then(count => res.json({ deleted: count }))
+    .catch(error => res.status(500).json(error));
+});
 module.exports = router;

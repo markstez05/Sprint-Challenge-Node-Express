@@ -1,11 +1,9 @@
 const express = require('express');
-
-const db = require('../helpers/actionModel');
-
+const actions = require('../helpers/actionModel');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-    db
+    actions
     .get()
     .then(actions  => {
         res.json(actions);
@@ -14,10 +12,25 @@ router.get('/', (req, res) => {
         res.status(500).json({ error: err })
     })
 })
+
+router.get('/:id', (req, res) => {
+    actions.get(req.params.id).then(action =>res.json(action));
+// })
+// .catch (err => {
+//     res.status(500).json({ err: error})
+})
+
+router.delete('/:id', (req, res) => {
+    actions
+    .remove(req.params.id)
+    .then(count => res.json({ deleted: count }))
+    .catch(error => res.status(500).json(error));
+});
+
 router.post('/', (req, res, next) => {
     const actionData = req.body;
     console.log('action Data',actionData)
-    db
+    actions
     .insert(actionData)
     .then(response => {
         res.status(201).json(response);
@@ -30,25 +43,19 @@ router.post('/', (req, res, next) => {
         }
         })
 })
-
 router.put('/:id', (req, res) => {
     const { id } = req.params;
-    const changes = req.body;
-
-    db
-    .update(id, changes)
-    .then(count => {
-        if(count > 0) {
-        db.get(id).then(actions => {
-            res.status(200).json(actions[0]);
-        })
-    } else {
-        res.status(404).json({ msg: 'user not found' });
-    }
-})
-    .catch(err => {
-        res.status(500).json(err)
+    actions
+    .update(id, req.body)
+    .then(action => {
+        if (action != null) {
+            res.status(200).json(action);
+        } else {
+            res.status(404).json({ message: 'There is no action with that id'})
+        }
     })
+    .catch(error => res.json(error))
 })
+
 
 module.exports = router;
